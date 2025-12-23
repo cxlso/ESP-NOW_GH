@@ -27,6 +27,28 @@ Further documentation on SuperSerial is available [here](https://www.masterad.it
 
 ![SignalFlow](Pictures/SignalFlow.jpg)
 
+## ESP32 Firmware
+
+### Transmitter Node (Master)
+
+### Receiver Nodes (Slave)
+
+### Note on ESP32-C3 / C6 / S2 / S3
+
+The ESP32-C3 (and similarly C6, S2, and S3) differs from many Arduino boards in that **USB serial output is disabled by default**. The Arduino IDE must be explicitly configured to expose the **USB CDC serial port at boot**. Documented [here](https://docs.espressif.com/projects/arduino-esp32/en/latest/tutorials/cdc_dfu_flash.html#usb-cdc)
+
+In the Arduino IDE:
+
+- **Tools → USB CDC On Boot → `Enabled`**
+
+You should now see the serial output from the board as expected.
+
+In this project, the **Receiver node (Master)** acts as a gateway between ESP32 transmitter nodes (Slaves) and Grasshopper, so it **must have USB CDC enabled** to ensure Serial communication.
+
+For **Transmitter nodes**, this setting is only required during development and debugging, as they do not rely on Serial monitoring once deployed and communicate exclusively via ESP-NOW.
+
+**Recommendation:** However, leaving **USB CDC on Boot enabled** simplifies debugging across all nodes.
+
 ## Repository Structure
 
 ```
