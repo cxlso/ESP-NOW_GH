@@ -59,6 +59,7 @@ This structure allows Grasshopper to bypass data looping limitation and function
 
 🐍 [`writer.py`](Python/Reader_Writer/writer.py) — Writes computed values from Grasshopper out to temp folder (included in GH definition)
 
+![Reader_Writer](Grasshopper/Tools/Reader_Writer.jpg)
 
 ## **1.1 Serial I/O — Stepper + Photoresistor (LDR)**
 
