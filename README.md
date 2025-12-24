@@ -259,12 +259,12 @@ A,320;B,180;C,60
 
 Key concepts:
 
-| Component                | Function                                         |
-| ------------------------ | ------------------------------------------------ |
-| `OnDataRecv()`           | Parses packet + converts to target step position |
-| `stepper.moveTo()`       | Non-blocking motor movement                      |
-| LED feedback             | Blinks whenever a packet is received             |
-| `WiFi.begin("", "", 1);` | Forces channel = **1** (match TX channel)        |
+| Component                      | Function                                         |
+| ------------------------------ | ------------------------------------------------ |
+| `OnDataRecv()`                 | Parses packet + converts to target step position |
+| `stepper.moveTo()`             | Non-blocking motor movement                      |
+|  `digitalWrite(LED_PIN, HIGH)` | Blinks whenever a packet is received             |
+| `WiFi.begin("", "", 1);`       | Forces channel = **1** (match TX channel)        |
 
 Receives a number → motor rotates accordingly.
 
