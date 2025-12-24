@@ -23,6 +23,142 @@ Further documentation on SuperSerial is available [here](https://www.masterad.it
 * ESP-NOW based (no router required)
 * Suitable for interactive systems and cyber-physical workflows
 
+
+# **1. Basic Interactions — Serial ↔ Grasshopper Workflows**
+
+Before introducing ESP-NOW, this repository documents a set of **serial-based interaction workflows** between **ESP32 and Grasshopper**, using the **SuperSerial plugin**. These examples demonstrate the Reader/Writer architecture that later becomes the foundation for wireless ESP-NOW workflows.
+
+
+## **1.0 Architecture — Reader/Writer Logic**
+
+Communication is established through a **serial-based feedback loop** inside Grasshopper using **SuperSerial** as the bridge to the ESP32.
+
+```
+ESP32 → SuperSerial (Receive) → GH Workflow → writer.py → Temp Folder → reader.py → SuperSerial (Send) → ESP32
+```
+
+The ESP32 sends sensor data **directly to SuperSerial**, which makes it available inside Grasshopper for real-time computation.
+After processing, the output is written to a temporary folder via **writer.py**, picked back up by **reader.py**, and returned to SuperSerial for transmission back to the ESP32.
+
+This structure allows Grasshopper to bypass data looping limitation and function as:
+
+✔ A live sensor data visualizer
+
+✔ A real-time controller for actuators
+
+✔ A computational processing layer between input and output
+
+> **Inside this loop, we can build any computational workflow we want — enabling real-time I/O interaction for robotics, kinetic systems, and IoT prototyping.**
+> The following examples illustrate this through LDR, ultrasonic, and joystick control setups.
+
+**Files involved:**
+
+📄 [`Reader_Writer.gh`](https://github.com/cxlso/ESP-NOW_GH/raw/refs/heads/main/Grasshopper/Tools/Reader_Writer.gh) — Grasshopper definition
+
+🐍 [`reader.py`](Python/Reader_Writer/reader.py) — Reads processed data from temp folder and feeds it to SuperSerial (included in GH definition)
+
+🐍 [`writer.py`](Python/Reader_Writer/writer.py) — Writes computed values from Grasshopper out to temp folder (included in GH definition)
+
+
+## **1.1 Serial I/O — Stepper + Photoresistor (LDR)**
+
+Reads an analog LDR value → smooths input → sends value to Grasshopper.
+Grasshopper remaps brightness to **stepper motor steps** and visualizes the value as a **circle + arrow indicator**.
+
+📎 *Use with the sketch:* `Serial_IO_Stepper_Photoresistor.ino`
+📄 *Grasshopper file:* `Serial_IO_Stepper_Photoresistor.gh`
+
+**Workflow:**
+
+| Sensor input           | Grasshopper output                         |
+| ---------------------- | ------------------------------------------ |
+| Raw LDR analog value   | Circle HUD displays brightness magnitude   |
+| Light intensity change | Step count remapped from brightness        |
+| Smoothed input filter  | Stepper motion becomes stable & responsive |
+
+**Pin Used:**
+
+| Pin          | Type           | Function                             |
+| ------------ | -------------- | ------------------------------------ |
+| `LDR_PIN 33` | Analog input   | Reads LDR brightness value           |
+| `DIR 16`     | Digital output | Stepper motor direction              |
+| `PUL 17`     | Digital output | Step pulse signal for stepper driver |
+
+Useful for light-reactive kinetic systems and calibration experiments.
+
+## **1.2 Serial I/O — Stepper + Ultrasonic Sensor**
+
+Reads ultrasonic distance → filtered → sent to Grasshopper → GH maps distance to step count.
+HUD display shows realtime distance feedback.
+
+📎 *Sketch:* `Serial_IO_Stepper_Ultrasonic.ino`
+📄 *Grasshopper:* `Serial_IO_Stepper_Ultrasonic.gh`
+
+**Workflow:**
+
+| Sensor input              | Grasshopper output                        |
+| ------------------------- | ----------------------------------------- |
+| Distance measurement (cm) | Live HUD distance display                 |
+| Object approaching sensor | Stepper advances or reacts proportionally |
+| Moving average filtering  | Smooth signal → accurate physical motion  |
+
+**Pin Used:**
+
+| Pin           | Type           | Function                            |
+| ------------- | -------------- | ----------------------------------- |
+| `TRIG_PIN 33` | Digital output | Sends ultrasonic trigger pulse      |
+| `ECHO_PIN 32` | Digital input  | Receives echo to calculate distance |
+| `DIR 16`      | Digital output | Stepper motor direction             |
+| `PUL 17`      | Digital output | Step pulses for stepper driver      |
+
+Ideal for proximity-based interaction, installation control, reactive surfaces.
+
+## **1.3 Serial I/O — Stepper + Joystick**
+
+Reads **X/Y joystick axes** → Grasshopper interprets 2D position inside a circle → sends angle/distance to stepper.
+
+Two versions exist:
+
+### **Basic**
+
+* Reads X,Y analog values
+* Displays HUD circular interface
+* Maps magnitude or angle to step count
+
+### **Advanced**
+
+* Joystick movement direction controls rotation
+* Circular gestures increment turns
+* Essentially becomes a **manual rotational input device**
+
+📎 *Sketch:* `Serial_IO_Stepper_Joystick.ino`
+📄 *Grasshopper:* `Serial_IO_Stepper_Joystick.gh`
+📄 *Grasshopper:* `Serial_IO_Stepper_Joystick_Advanced.gh`
+
+**Workflow:**
+
+| Sensor input                       | Grasshopper output                                 |
+| ---------------------------------- | -------------------------------------------------- |
+| X,Y analog joystick values         | 2D HUD position inside circle                      |
+| Stick angle & distance from center | Mapped to step count or rotational direction       |
+| Continuous circular movement       | Advanced mode counts rotations + directional turns |
+
+**Pin Used:**
+
+| Pin        | Type           | Function                 |
+| ---------- | -------------- | ------------------------ |
+| `JOY_X 33` | Analog input   | Horizontal joystick axis |
+| `JOY_Y 32` | Analog input   | Vertical joystick axis   |
+| `DIR 16`   | Digital output | Stepper direction        |
+| `PUL 17`   | Digital output | Step pulses              |
+
+
+
+
+These three examples establish the **core loop**, later expanded into **wireless ESP-NOW swarms**.
+
+
+
 ## Signal Flow
 
 ![SignalFlow](Pictures/SignalFlow.jpg)
