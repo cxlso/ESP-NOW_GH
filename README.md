@@ -29,7 +29,7 @@ Further documentation on SuperSerial is available [here](https://www.masterad.it
 Before introducing ESP-NOW, this repository documents a set of **serial-based interaction workflows** between **ESP32 and Grasshopper**, using the **SuperSerial plugin**. These examples demonstrate the Reader/Writer architecture that later becomes the foundation for wireless ESP-NOW workflows.
 
 
-## **1.0 Architecture — Reader/Writer Logic**
+## **Architecture — Reader/Writer Logic**
 
 Communication is established through a **serial-based feedback loop** inside Grasshopper using **SuperSerial** as the bridge to the ESP32.
 
@@ -67,6 +67,7 @@ Reads an analog LDR value → smooths input → sends value to Grasshopper.
 Grasshopper remaps brightness to **stepper motor steps** and visualizes the value as a **circle + arrow indicator**.
 
 📎 *Use with the sketch:* `Serial_IO_Stepper_Photoresistor.ino`
+
 📄 *Grasshopper file:* `Serial_IO_Stepper_Photoresistor.gh`
 
 **Workflow:**
@@ -85,6 +86,8 @@ Grasshopper remaps brightness to **stepper motor steps** and visualizes the valu
 | `DIR 16`     | Digital output | Stepper motor direction              |
 | `PUL 17`     | Digital output | Step pulse signal for stepper driver |
 
+![Serial_IO_Stepper_Photoresistor](Grasshopper/Basic_Interactions/Serial_IO_Stepper_Photoresistor.jpg)
+
 Useful for light-reactive kinetic systems and calibration experiments.
 
 ## **1.2 Serial I/O — Stepper + Ultrasonic Sensor**
@@ -93,6 +96,7 @@ Reads ultrasonic distance → filtered → sent to Grasshopper → GH maps dista
 HUD display shows realtime distance feedback.
 
 📎 *Sketch:* `Serial_IO_Stepper_Ultrasonic.ino`
+
 📄 *Grasshopper:* `Serial_IO_Stepper_Ultrasonic.gh`
 
 **Workflow:**
@@ -111,6 +115,8 @@ HUD display shows realtime distance feedback.
 | `ECHO_PIN 32` | Digital input  | Receives echo to calculate distance |
 | `DIR 16`      | Digital output | Stepper motor direction             |
 | `PUL 17`      | Digital output | Step pulses for stepper driver      |
+
+![Serial_IO_Stepper_Ultrasonic](Grasshopper/Basic_Interactions/Serial_IO_Stepper_Ultrasonic.jpg)
 
 Ideal for proximity-based interaction, installation control, reactive surfaces.
 
@@ -133,7 +139,9 @@ Two versions exist:
 * Essentially becomes a **manual rotational input device**
 
 📎 *Sketch:* `Serial_IO_Stepper_Joystick.ino`
+
 📄 *Grasshopper:* `Serial_IO_Stepper_Joystick.gh`
+
 📄 *Grasshopper:* `Serial_IO_Stepper_Joystick_Advanced.gh`
 
 **Workflow:**
@@ -153,22 +161,121 @@ Two versions exist:
 | `DIR 16`   | Digital output | Stepper direction        |
 | `PUL 17`   | Digital output | Step pulses              |
 
-
-
+![Serial_IO_Stepper_Joystick](Grasshopper/Basic_Interactions/Serial_IO_Stepper_Joystick.jpg)
 
 These three examples establish the **core loop**, later expanded into **wireless ESP-NOW swarms**.
 
+# **2 — ESP-NOW with Grasshopper**
 
+While Section 1 covers **Serial↔Grasshopper communication**, this section extends the workflow to **wireless multi-board control using ESP-NOW**, allowing one ESP32 (TX/Master) to broadcast step values to multiple remote ESP32 devices (RX/Slaves).
+This removes the need for wired USB connections and enables **swarm actuation**, **distributed sensors**, and **multi-motor setups**.
 
-## Signal Flow
+## **2.1 Logic Introduction & Signal Flow**
+
+ESP-NOW enables **direct board-to-board communication** without Wi-Fi or a router.
+Grasshopper remains the computational control hub, but instead of writing values back to Serial, we stream formatted messages to the **Transmitter ESP32 (TX/Master)**, which then wirelessly distributes values to multiple **Receiver ESP32s (RX/Slaves)**.
+
+### Signal Flow
 
 ![SignalFlow](Pictures/SignalFlow.jpg)
 
-## ESP32 Firmware
+### Set-up 
 
-### Transmitter Node (Master)
+#### 📌 First step — Retrieve MAC addresses (Required)
 
-### Receiver Nodes (Slave)
+Every receiver must be registered in the transmitter using its **MAC Address**.
+Use this sketch to print the MAC of each ESP32 unit:
+
+**`Display_MAC_Address.ino`**
+
+* Upload → open Serial Monitor → copy printed address
+* Press reset if nothing appears
+* Repeat for each receiver device
+
+> ⚠️ If MAC is not added to the TX peer list, that motor/ESP32 will **receive nothing**.
+
+#### Optional: Simple test setup (No motors + GH Monitoring)
+
+Useful for verifying ESP-NOW range + connectivity first.
+
+> TX sends values → RX blinks LED
+> Includes serial logs for debugging
+
+**[ESP-NOW LedGHWireless](ESP32/Tools/LedGHWirelessControlV1)**
+
+
+## **2.2 Example — ESP-NOW Multimotors Attractor**
+
+A Grasshopper attractor moves across the viewport → each ESP32 RX receives a step count → motors react in real-time.
+
+📄 *Grasshopper:* [`ESP-NOW_Multimotors_Attractor.gh`](https://github.com/cxlso/ESP-NOW_GH/raw/refs/heads/main/Grasshopper/ESP-NOW/ESP-NOW_Multimotors_Attractor.gh)
+
+![ESP-NOW_Multimotors_Attractor](Grasshopper/ESP-NOW/ESP-NOW_Multimotors_Attractor.jpg)
+
+### **Workflow**
+
+| GH input                     | TX Master sends                      | RX action                               |
+| ---------------------------- | ------------------------------------ | --------------------------------------- |
+| Attractor distance per motor | Formatted string: `A,120;B,240;C,50` | RX extracts value → `stepper.moveTo()`  |
+| HUD motion changes           | New wireless packet emitted          | Motor swarm follows attractor behaviour |
+| Multi-node output            | Each ID routed to its MAC            | Fully parallel wireless control         |
+
+### **2.3 ESP32 Firmware Breakdown**
+
+#### **Transmitter (Master node) — `TX_ESP-NOW_Multimotors_Attractor.ino`**
+
+Key concepts:
+
+| Component            | Role                                       |
+| -------------------- | ------------------------------------------ |
+| Device MAC table     | Add receivers here manually                |
+| `sendData()`         | Sends step value to specific board         |
+| Serial input parsing | Receives `ID,value` pairs from Grasshopper |
+| Callback feedback    | Prints delivery status per board           |
+
+You must edit the array with your own MAC addresses:
+
+```cpp
+Device devices[] = {
+  {"A", {0x3C,0x8A,0x1F,0xA0,0x54,0x7C}},
+  {"B", {0x5C,0x01,0x3B,0x74,0x56,0x68}},
+  {"C", {0x5C,0x01,0x3B,0x72,0xDB,0xF4}},
+};
+```
+
+String format:
+
+```cpp
+{"ID", {0xAA,0xBB,0xCC,0xDD,0xEE,0xFF}},
+```
+
+Format of data Grasshopper must output:
+
+```
+A,320;B,180;C,60
+```
+
+#### **Receiver (Slave nodes) — `RX_ESP-NOW_Multimotors_Attractor.ino`**
+
+Key concepts:
+
+| Component                | Function                                         |
+| ------------------------ | ------------------------------------------------ |
+| `OnDataRecv()`           | Parses packet + converts to target step position |
+| `stepper.moveTo()`       | Non-blocking motor movement                      |
+| LED feedback             | Blinks whenever a packet is received             |
+| `WiFi.begin("", "", 1);` | Forces channel = **1** (match TX channel)        |
+
+Receives a number → motor rotates accordingly.
+
+#### Pins Reference (RX board)
+
+| Pin         | Type        | Purpose                 |
+| ----------- | ----------- | ----------------------- |
+| `DIR 10`    | Digital out | Stepper direction       |
+| `PUL 9`     | Digital out | Step stepper pulses     |
+| `ENA 2`     | Digital out | Enable motor driver     |
+| `LED_PIN 8` | Digital out | Wireless feedback blink |
 
 ### Note on ESP32-C3 / C6 / S2 / S3
 
@@ -186,24 +293,17 @@ For **Transmitter nodes**, this setting is only required during development and 
 
 **Recommendation:** However, leaving **USB CDC on Boot enabled** simplifies debugging across all nodes.
 
-## Repository Structure
+### When to use this system:
 
-```
-espnow-grasshopper-swarm/
-├── grasshopper/      # Grasshopper definitions and examples
-├── firmware/         # ESP32 firmware (nodes + gateway)
-├── docs/             # Protocol and workflow documentation
-├── examples/         # Example projects and use cases
-└── media/            # Diagrams, screenshots, videos
-```
+✔ Kinetic swarms
 
-## Applications
+✔ Multi-motor synchronized motion
 
-* Swarm robotics
-* Interactive installations
-* Distributed sensing and actuation
-* Cyber-physical fabrication
-* Architectural intelligence systems
+✔ Wireless installation setups
+
+✔ Distributed sensing & decentralized logic
+
+✔ Larger robotic assemblies with no cable clutter
 
 ## Contributing
 
