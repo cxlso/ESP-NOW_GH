@@ -1,12 +1,21 @@
 # ESP-NOW_GH
-###### A real-time Grasshopper ↔ ESP32 communication workflow using ESP-NOW. Enables simultaneous read/write control of ESP32 swarms with near-zero latency, providing a scalable, Firefly-free alternative for building fully integrated computational design and interactive systems.
-
+###### A real-time Grasshopper ↔ ESP32 communication pipeline for wired Serial & wireless ESP-NOW control. Enables continuous, near-zero latency, read/write workflows and scalable multi-device actuation without Firefly.
 
 ## Overview
 
-This project presents a real-time communication workflow between **Grasshopper ↔ ESP32(Master) ↔ ESP32(Slaves)** using the **ESP-NOW** protocol. By streaming data directly into the Grasshopper interface, the workflow allows complete computational pipelines to be constructed around **sensing, actuation, multi-agent coordination, and distributed intelligence**.
+This project establishes a real-time communication workflow using **two modes**:
 
-With **Firefly deprecated** and constrained by serial-based communication, this approach leverages ESP-NOW to overcome limitations related to latency, scalability, and system architecture. It supports **swarm-based control**, real-time feedback loops, and peer-to-peer communication without relying on traditional Wi-Fi networking or point-to-point serial connections.
+1. **Grasshopper ↔ ESP32 (Serial full-duplex loop)**
+   Used for sensor streaming, feedback, and computational control.
+   Grasshopper reads incoming values through *SuperSerial*, processes them, and writes new outputs back to the ESP32 in real time.
+
+2. **ESP32 (Master) ↔ ESP32 (Slaves) via ESP-NOW**
+   Used for multi-motor wireless control.
+   Target values computed in Grasshopper are sent to the Master over Serial, which then broadcasts them to Receiver nodes with minimal latency.
+
+This combined system allows Grasshopper to function as the **central computation layer**, generating stepper motor targets from interactive geometry (e.g., attractors), while **ESP-NOW distributes commands wirelessly** across multiple devices.
+
+Unlike Firefly-based Serial setups, this workflow supports **parallel wireless actuation, scalable swarms, and responsive kinetic control** without Wi-Fi routing or heavy latency.
 
 ### Prerequisite
 
@@ -66,9 +75,9 @@ This structure allows Grasshopper to bypass data looping limitation and function
 Reads an analog LDR value → smooths input → sends value to Grasshopper.
 Grasshopper remaps brightness to **stepper motor steps** and visualizes the value as a **circle + arrow indicator**.
 
-📎 *Use with the sketch:* `Serial_IO_Stepper_Photoresistor.ino`
+📎 *Use with the sketch:* [`Serial_IO_Stepper_Photoresistor.ino`](ESP32/Basic_Interactions/Serial_IO_Stepper_Photoresistor)
 
-📄 *Grasshopper file:* `Serial_IO_Stepper_Photoresistor.gh`
+📄 *Grasshopper file:* [`Serial_IO_Stepper_Photoresistor.gh`](https://github.com/cxlso/ESP-NOW_GH/raw/refs/heads/main/Grasshopper/Basic_Interactions/Serial_IO_Stepper_Photoresistor.gh)
 
 **Workflow:**
 
@@ -95,9 +104,9 @@ Useful for light-reactive kinetic systems and calibration experiments.
 Reads ultrasonic distance → filtered → sent to Grasshopper → GH maps distance to step count.
 HUD display shows realtime distance feedback.
 
-📎 *Sketch:* `Serial_IO_Stepper_Ultrasonic.ino`
+📎 *Sketch:* [`Serial_IO_Stepper_Ultrasonic.ino`](ESP32/Basic_Interactions/Serial_IO_Stepper_Ultrasonic)
 
-📄 *Grasshopper:* `Serial_IO_Stepper_Ultrasonic.gh`
+📄 *Grasshopper:* [`Serial_IO_Stepper_Ultrasonic.gh`](https://github.com/cxlso/ESP-NOW_GH/raw/refs/heads/main/Grasshopper/Basic_Interactions/Serial_IO_Stepper_Ultrasonic.gh)
 
 **Workflow:**
 
@@ -138,11 +147,11 @@ Two versions exist:
 * Circular gestures increment turns
 * Essentially becomes a **manual rotational input device**
 
-📎 *Sketch:* `Serial_IO_Stepper_Joystick.ino`
+📎 *Sketch:* [`Serial_IO_Stepper_Joystick.ino`](ESP32/Basic_Interactions/Serial_IO_Stepper_Joystick)
 
-📄 *Grasshopper:* `Serial_IO_Stepper_Joystick.gh`
+📄 *Grasshopper:* [`Serial_IO_Stepper_Joystick.gh`](https://github.com/cxlso/ESP-NOW_GH/raw/refs/heads/main/Grasshopper/Basic_Interactions/Serial_IO_Stepper_Joystick.gh)
 
-📄 *Grasshopper:* `Serial_IO_Stepper_Joystick_Advanced.gh`
+📄 *Grasshopper:* [`Serial_IO_Stepper_Joystick_Advanced.gh`](https://github.com/cxlso/ESP-NOW_GH/raw/refs/heads/main/Grasshopper/Basic_Interactions/Serial_IO_Stepper_Joystick_Advanced.gh)
 
 **Workflow:**
 
@@ -186,7 +195,7 @@ Grasshopper remains the computational control hub, but instead of writing values
 Every receiver must be registered in the transmitter using its **MAC Address**.
 Use this sketch to print the MAC of each ESP32 unit:
 
-**`Display_MAC_Address.ino`**
+📎 *Sketch:* [**`Display_MAC_Address.ino`**](ESP32/Tools/Display_MAC_Address)
 
 * Upload → open Serial Monitor → copy printed address
 * Press reset if nothing appears
@@ -201,7 +210,7 @@ Useful for verifying ESP-NOW range + connectivity first.
 > TX sends values → RX blinks LED
 > Includes serial logs for debugging
 
-**[ESP-NOW LedGHWireless](ESP32/Tools/LedGHWirelessControlV1)**
+📎 *Sketches:* **[ESP-NOW LedGHWireless](ESP32/Tools/LedGHWirelessControlV1)**
 
 
 ## **2.2 Example — ESP-NOW Multimotors Attractor**
