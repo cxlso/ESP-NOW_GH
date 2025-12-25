@@ -1,6 +1,8 @@
 # ESP-NOW_GH
 ###### A real-time Grasshopper ↔ ESP32 communication pipeline for wired Serial & wireless ESP-NOW control. Enables continuous, near-zero latency, read/write workflows and scalable multi-device actuation without Firefly.
 
+![Banner](Pictures/Banner.jpg)
+
 ## Overview
 
 This project establishes a real-time communication workflow using **two modes**:
@@ -68,12 +70,19 @@ This structure allows Grasshopper to bypass data looping limitation and function
 
 🐍 [`writer.py`](Python/Reader_Writer/writer.py) — Writes computed values from Grasshopper out to temp folder (included in GH definition)
 
-![Reader_Writer](Grasshopper/Tools/Reader_Writer.jpg)
+<div align="center">
+  <img src="https://github.com/cxlso/ESP-NOW_GH/blob/main/Grasshopper/Tools/Reader_Writer.jpg" width="90%">
+</div>
 
 ## **1.1 Serial I/O — Stepper + Photoresistor (LDR)**
 
 Reads an analog LDR value → smooths input → sends value to Grasshopper.
 Grasshopper remaps brightness to **stepper motor steps** and visualizes the value as a **circle + arrow indicator**.
+
+<div align="center">
+  <img src="https://github.com/cxlso/ESP-NOW_GH/blob/main/Pictures/Photoresistor.jpg" width="75%">
+</div>
+
 
 📎 *Use with the sketch:* [`Serial_IO_Stepper_Photoresistor.ino`](ESP32/Basic_Interactions/Serial_IO_Stepper_Photoresistor)
 
@@ -103,6 +112,10 @@ Useful for light-reactive kinetic systems and calibration experiments.
 
 Reads ultrasonic distance → filtered → sent to Grasshopper → GH maps distance to step count.
 HUD display shows realtime distance feedback.
+
+<div align="center">
+  <img src="https://github.com/cxlso/ESP-NOW_GH/blob/main/Pictures/Ultrasonic.jpg" width="75%">
+</div>
 
 📎 *Sketch:* [`Serial_IO_Stepper_Ultrasonic.ino`](ESP32/Basic_Interactions/Serial_IO_Stepper_Ultrasonic)
 
@@ -146,6 +159,11 @@ Two versions exist:
 * Joystick movement direction controls rotation
 * Circular gestures increment turns
 * Essentially becomes a **manual rotational input device**
+
+
+<div align="center">
+  <img src="https://github.com/cxlso/ESP-NOW_GH/blob/main/Pictures/Joystick.jpg" width="75%">
+</div>
 
 📎 *Sketch:* [`Serial_IO_Stepper_Joystick.ino`](ESP32/Basic_Interactions/Serial_IO_Stepper_Joystick)
 
@@ -219,6 +237,8 @@ A Grasshopper attractor moves across the viewport → each ESP32 RX receives a s
 
 📄 *Grasshopper:* [`ESP-NOW_Multimotors_Attractor.gh`](https://github.com/cxlso/ESP-NOW_GH/raw/refs/heads/main/Grasshopper/ESP-NOW/ESP-NOW_Multimotors_Attractor.gh)
 
+![Multimotors](Pictures/Multimotors.jpg)
+
 ![ESP-NOW_Multimotors_Attractor](Grasshopper/ESP-NOW/ESP-NOW_Multimotors_Attractor.jpg)
 
 ### **Workflow**
@@ -231,7 +251,9 @@ A Grasshopper attractor moves across the viewport → each ESP32 RX receives a s
 
 ### **2.3 ESP32 Firmware Breakdown**
 
-#### **Transmitter (Master node) — `TX_ESP-NOW_Multimotors_Attractor.ino`**
+#### **Transmitter (Master node)**
+
+📎 *Sketch:* [**`TX_ESP-NOW_Multimotors_Attractor.ino`**](ESP32/ESP-NOW/TX_ESP-NOW_Multimotors_Attractor)
 
 Key concepts:
 
@@ -264,7 +286,9 @@ Format of data Grasshopper must output:
 A,320;B,180;C,60
 ```
 
-#### **Receiver (Slave nodes) — `RX_ESP-NOW_Multimotors_Attractor.ino`**
+#### **Receiver (Slave nodes)**
+
+📎 *Sketch:* [**`RX_ESP-NOW_Multimotors_Attractor.ino`**](ESP32/ESP-NOW/RX_ESP-NOW_Multimotors_Attractor)
 
 Key concepts:
 
@@ -329,10 +353,7 @@ This work is licensed under a [Creative Commons Attribution-NonCommercial-ShareA
 
 ## Acknowledgements
 
-Special thanks to [Luigi Pacheco](https://luigipacheco.com/), director of the
-[Interactive Machines Lab](https://www.instagram.com/imachineslab) at the
-[School of Architecture of Florida Atlantic University](https://www.fau.edu/artsandletters/architecture/)
-for lending me his RealSense Camera.
+Project developped in collaboration with Milad Gholamifard at the [School of Architecture of Florida Atlantic University](https://www.fau.edu/artsandletters/architecture/).
 
 
 <!-- Shields and link definitions -->
