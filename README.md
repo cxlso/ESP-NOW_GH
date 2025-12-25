@@ -35,12 +35,12 @@ Further documentation on SuperSerial is available [here](https://www.masterad.it
 * Suitable for interactive systems and cyber-physical workflows
 
 
-# **1. Basic Interactions — Serial ↔ Grasshopper Workflows**
+# 1. Basic Interactions — Serial ↔ Grasshopper Workflows
 
 Before introducing ESP-NOW, this repository documents a set of **serial-based interaction workflows** between **ESP32 and Grasshopper**, using the **SuperSerial plugin**. These examples demonstrate the Reader/Writer architecture that later becomes the foundation for wireless ESP-NOW workflows.
 
 
-## **Architecture — Reader/Writer Logic**
+## 1.1 Architecture — Reader/Writer Logic
 
 Communication is established through a **serial-based feedback loop** inside Grasshopper using **SuperSerial** as the bridge to the ESP32.
 
@@ -74,7 +74,7 @@ This structure allows Grasshopper to bypass data looping limitation and function
   <img src="https://github.com/cxlso/ESP-NOW_GH/blob/main/Grasshopper/Tools/Reader_Writer.jpg" width="90%">
 </div>
 
-## **1.1 Serial I/O — Stepper + Photoresistor (LDR)**
+## 1.2 Serial I/O — Stepper + Photoresistor (LDR)
 
 Reads an analog LDR value → smooths input → sends value to Grasshopper.
 Grasshopper remaps brightness to **stepper motor steps** and visualizes the value as a **circle + arrow indicator**.
@@ -108,7 +108,7 @@ Grasshopper remaps brightness to **stepper motor steps** and visualizes the valu
 
 Useful for light-reactive kinetic systems and calibration experiments.
 
-## **1.2 Serial I/O — Stepper + Ultrasonic Sensor**
+## 1.3 Serial I/O — Stepper + Ultrasonic Sensor
 
 Reads ultrasonic distance → filtered → sent to Grasshopper → GH maps distance to step count.
 HUD display shows realtime distance feedback.
@@ -142,19 +142,19 @@ HUD display shows realtime distance feedback.
 
 Ideal for proximity-based interaction, installation control, reactive surfaces.
 
-## **1.3 Serial I/O — Stepper + Joystick**
+## 1.4 Serial I/O — Stepper + Joystick
 
 Reads **X/Y joystick axes** → Grasshopper interprets 2D position inside a circle → sends angle/distance to stepper.
 
 Two versions exist:
 
-### **Basic**
+### Basic
 
 * Reads X,Y analog values
 * Displays HUD circular interface
 * Maps magnitude or angle to step count
 
-### **Advanced**
+### Advanced
 
 * Joystick movement direction controls rotation
 * Circular gestures increment turns
@@ -192,12 +192,12 @@ Two versions exist:
 
 These three examples establish the **core loop**, later expanded into **wireless ESP-NOW swarms**.
 
-# **2 — ESP-NOW with Grasshopper**
+# 2 — ESP-NOW with Grasshopper
 
 While Section 1 covers **Serial↔Grasshopper communication**, this section extends the workflow to **wireless multi-board control using ESP-NOW**, allowing one ESP32 (TX/Master) to broadcast step values to multiple remote ESP32 devices (RX/Slaves).
 This removes the need for wired USB connections and enables **swarm actuation**, **distributed sensors**, and **multi-motor setups**.
 
-## **2.1 Logic Introduction & Signal Flow**
+## 2.1 Logic Introduction & Signal Flow
 
 ESP-NOW enables **direct board-to-board communication** without Wi-Fi or a router.
 Grasshopper remains the computational control hub, but instead of writing values back to Serial, we stream formatted messages to the **Transmitter ESP32 (TX/Master)**, which then wirelessly distributes values to multiple **Receiver ESP32s (RX/Slaves)**.
@@ -231,7 +231,7 @@ Useful for verifying ESP-NOW range + connectivity first.
 📎 *Sketches:* **[ESP-NOW LedGHWireless](ESP32/Tools/LedGHWirelessControlV1)**
 
 
-## **2.2 Example — ESP-NOW Multimotors Attractor**
+## 2.2 Example — ESP-NOW Multimotors Attractor
 
 A Grasshopper attractor moves across the viewport → each ESP32 RX receives a step count → motors react in real-time.
 
@@ -241,7 +241,7 @@ A Grasshopper attractor moves across the viewport → each ESP32 RX receives a s
 
 ![ESP-NOW_Multimotors_Attractor](Grasshopper/ESP-NOW/ESP-NOW_Multimotors_Attractor.jpg)
 
-### **Workflow**
+**Workflow**
 
 | GH input                     | TX Master sends                      | RX action                               |
 | ---------------------------- | ------------------------------------ | --------------------------------------- |
@@ -249,9 +249,9 @@ A Grasshopper attractor moves across the viewport → each ESP32 RX receives a s
 | HUD motion changes           | New wireless packet emitted          | Motor swarm follows attractor behaviour |
 | Multi-node output            | Each ID routed to its MAC            | Fully parallel wireless control         |
 
-### **2.3 ESP32 Firmware Breakdown**
+### ESP32 Firmware Breakdown
 
-#### **Transmitter (Master node)**
+#### Transmitter (Master node)
 
 📎 *Sketch:* [**`TX_ESP-NOW_Multimotors_Attractor.ino`**](ESP32/ESP-NOW/TX_ESP-NOW_Multimotors_Attractor)
 
@@ -286,7 +286,7 @@ Format of data Grasshopper must output:
 A,320;B,180;C,60
 ```
 
-#### **Receiver (Slave nodes)**
+#### Receiver (Slave nodes)
 
 📎 *Sketch:* [**`RX_ESP-NOW_Multimotors_Attractor.ino`**](ESP32/ESP-NOW/RX_ESP-NOW_Multimotors_Attractor)
 
