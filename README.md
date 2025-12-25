@@ -338,6 +338,16 @@ For **Transmitter nodes**, this setting is only required during development and 
 
 ✔ Larger robotic assemblies with no cable clutter
 
+## Videos
+
+https://github.com/user-attachments/assets/08a29fa2-7369-4514-9980-fc0ba97f301a
+
+https://github.com/user-attachments/assets/0ee3f0a6-944a-4475-88be-fe59d14b59e5
+
+https://github.com/user-attachments/assets/0a6e0352-41b4-424d-b486-34efad971dc4
+
+https://github.com/user-attachments/assets/76ee439a-4ae9-484a-a1f7-af93de7f9ee3
+
 ## Contributing
 
 Contributions and suggestions are welcome.
