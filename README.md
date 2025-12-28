@@ -363,7 +363,7 @@ This work is licensed under a [Creative Commons Attribution-NonCommercial-ShareA
 
 ## Acknowledgements
 
-Project developped in collaboration with Milad Gholamifard at the [School of Architecture of Florida Atlantic University](https://www.fau.edu/artsandletters/architecture/).
+Project developed in collaboration with Milad Gholamifard at the [School of Architecture of Florida Atlantic University](https://www.fau.edu/artsandletters/architecture/).
 
 
 <!-- Shields and link definitions -->
