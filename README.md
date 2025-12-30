@@ -1,4 +1,4 @@
-# ESP-NOW_GH
+# ESP-NOW with Grasshopper
 ###### A real-time Grasshopper ↔ ESP32 communication pipeline for wired Serial & wireless ESP-NOW control. Enables continuous, near-zero latency, read/write workflows and scalable multi-device actuation without Firefly.
 
 ![Banner](Pictures/Banner.jpg)
